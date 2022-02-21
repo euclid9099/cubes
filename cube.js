@@ -105,6 +105,53 @@ export default class cube {
         }
       }
     }
+
+    static generateScramble(minlenght, maxlength) {
+        let scramble = new Array();
+        let possibleKeys = ['U', 'D', 'R', 'L', 'F', 'B'];
+
+        //scrambles beyond 20 moves are nonsensical since 20 is already the most scrambled cube (see https://en.wikipedia.org/wiki/Optimal_solutions_for_Rubik%27s_Cube)
+        if(maxlength > 20) maxlength = 20;
+
+        let totallength = Math.floor(Math.random() * (maxlength - minlenght) + minlenght);
+
+        while(scramble.length < totallength * 2) {
+            //generate one key (possibly inverted/counterclockwise)
+            scramble.push(possibleKeys.at(Math.floor(Math.random() * possibleKeys.length)));
+            scramble.push((Math.floor(Math.random() * 2) - 0.5) * 2);
+
+            if(scramble.length > 3 && scramble.at(-4) == scramble.at(-2)) {
+                //combined may range from -3 to 3
+                let combined = (scramble.at(-1) + scramble.at(-3)) % 4;
+                if (combined < 0) combined += 4
+                
+                //remove last added element (duplicate of second to last)
+                scramble.pop();
+                scramble.pop();
+                scramble.pop();
+
+                switch(combined) {
+                    //all recent rotations add up to nothing, remove
+                    case 0:
+                        scramble.pop();
+                        break;
+                    case 3:
+                        scramble.push(-1);
+                        break;
+                    default:
+                        scramble.push(combined);
+                        break;
+                }
+            }
+        }
+        let scrambleString = "";
+        for (let i = 0; i < scramble.length; i += 2) {
+            scrambleString += scramble.at(i);
+            scrambleString += (scramble.at(i + 1) == -1 ? "'" : (scramble.at(i + 1) == 1 ? "" : "2"));
+            scrambleString += " ";
+        }
+        return scrambleString;
+    }
   
     scramble(instructions) {
         let steps = instructions.split(" ");

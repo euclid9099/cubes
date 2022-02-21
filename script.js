@@ -22,10 +22,7 @@ function setup() {
 
   //create first cube
   curPuzzle = new cube({scene:scene, height:3, coloring:{top: new THREE.Color(0xFFFFFF), bottom: new THREE.Color(0xFFD700), left: new THREE.Color(0xFF8C00), right: new THREE.Color(0xFF0000), front: new THREE.Color(0x00AA00), back: new THREE.Color(0x0000AA)}});
-  scene.add(new THREE.GridHelper(10, 10))
-  let test = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial());
-  test.position.set(2,3,4);
-  scene.add(test);
+  curPuzzle.scramble(cube.generateScramble(15, 20));
 
   //set renderer size to be quadratic
   renderer.setPixelRatio(window.devicePixelRatio);
