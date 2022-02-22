@@ -25,6 +25,8 @@ export default function rotateOnAxis(Element, rotationPoint, rotationAxis, angle
     tempVector.z += (-(rotationPoint.y * rotationAxis.x) + (rotationPoint.x * rotationAxis.y) - (rotationAxis.y * Element.position.x) + (rotationAxis.x * Element.position.y)) * SinVal;    
 
     Element.rotateOnWorldAxis(rotationAxis, angle);
+    tempVector.multiplyScalar(2);
     tempVector.round();
+    tempVector.divideScalar(2);
     Element.position.set(...tempVector.toArray());
 }
