@@ -9,7 +9,7 @@ console.log("start");
 //create scene and camera
 const scene = new THREE.Scene();
 //create camera
-const camera = new THREE.OrthographicCamera(-3, 3, 3, -3, 0, 10);
+const camera = new THREE.OrthographicCamera(-3, 3, 3, -3, 0, 1000);
 //select renderer
 const renderer = new THREE.WebGLRenderer({
   canvas: document.querySelector('#cube'),
@@ -21,8 +21,9 @@ let curPuzzle = null;
 function setup() {
 
   //create first cube
-  curPuzzle = new cube({scene:scene, height:3, coloring:{top: new THREE.Color(0xFFFFFF), bottom: new THREE.Color(0xFFD700), left: new THREE.Color(0xFF8C00), right: new THREE.Color(0xFF0000), front: new THREE.Color(0x00AA00), back: new THREE.Color(0x0000AA)}});
-  curPuzzle.scramble(cube.generateScramble(15, 20));
+  curPuzzle = new cube({scene:scene, height:3, coloring:{top: new THREE.Color(0xFFFFFF), bottom: new THREE.Color(0xFFD700), left: new THREE.Color(0xFF8C00), right: new THREE.Color(0xFF0000), front: new THREE.Color(0x00AA00), back: new THREE.Color(0x0000AA), none: new THREE.Color(0x00)}});
+  //curPuzzle.scramble(cube.generateScramble(15, 20));
+  scene.add(new THREE.GridHelper(10,10));
 
   //set renderer size to be quadratic
   renderer.setPixelRatio(window.devicePixelRatio);
@@ -33,7 +34,7 @@ function setup() {
   }
 
   //set camera position
-  camera.position.set(3,3,3);
+  camera.position.set(250,250,250);
   camera.setRotationFromEuler(new THREE.Euler(-1,-1,-1));
 }
 
@@ -48,10 +49,7 @@ function update() {
 
 
 window.addEventListener("keypress", (event) => {
-  console.log(event);
-  if (curPuzzle.height <= 3 && curPuzzle.width <= 3 && curPuzzle.depth <= 3) {
-    curPuzzle.scramble(event.key.toUpperCase() + (event.shiftKey ? "'" : ""));
-  }
+    curPuzzle.scramble(event.key.toUpperCase() + (event.shiftKey ? "2" : "1") + "1");
 });
 
 setup();
