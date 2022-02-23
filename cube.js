@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import rotateOnAxis from './helpers';
+import { rotateOnAxis, closestAxis, componentMultiplication } from './helpers';
 
 export default class cube {
 
@@ -22,6 +22,15 @@ export default class cube {
                 front: new THREE.MeshBasicMaterial({color: this.colors.front}),
                 none: new THREE.MeshBasicMaterial({color: this.colors.none})
             }
+
+            this.axes = [
+                new THREE.Vector3(1,0,0), 
+                new THREE.Vector3(-1,0,0), 
+                new THREE.Vector3(0,1,0), 
+                new THREE.Vector3(0,-1,0), 
+                new THREE.Vector3(0,0,1), 
+                new THREE.Vector3(0,0,-1), 
+            ];  
       
             //sets all parameters, either based on themselves or the next best attribute
             this.width = params.width || params.height || params.depth;
@@ -66,6 +75,8 @@ export default class cube {
 
         //scrambles beyond 20 moves are nonsensical since 20 is already the most scrambled cube (see https://en.wikipedia.org/wiki/Optimal_solutions_for_Rubik%27s_Cube)
         if(maxlength > 20) maxlength = 20;
+        //minlength should not be bigger than maxlength
+        if(minlenght > maxlength) minlenght = maxlength;
 
         let totallength = Math.floor(Math.random() * (maxlength - minlenght) + minlenght);
 
@@ -104,49 +115,38 @@ export default class cube {
             scrambleString += (scramble.at(i + 1) == -1 ? "2" : "1");
             scrambleString += " ";
         }
+        console.log(scrambleString);
         return scrambleString;
     }
   
-    scramble(instructions) {
+    scramble(instructions, cameraposition, direction) {
         let steps = instructions.split(" ");
+
         console.log(steps);
-        console.log(this.scene.children.length);
+
+        //map all cube axes by name
+        let map = new Map();
+        map.set('B', closestAxis(cameraposition, this.axes));
+        map.set('F', map.get('B').clone().multiplyScalar(-1));
+        map.set('D', closestAxis(new THREE.Vector3(0,1,0).applyEuler(direction), this.axes));
+        map.set('U', map.get('D').clone().multiplyScalar(-1));
+        map.set('L', new THREE.Vector3().crossVectors(map.get('U'), map.get('F')));
+        map.set('R', map.get('L').clone().multiplyScalar(-1));
+        
+        //for each instruction
         steps.forEach(e => {
-            for(let j = 0; j < this.parts.length; j++) {
-                switch(e[0]) {
-                    case 'R':
-                        if(this.parts[j].position.x == ((this.width - 1) / 2)) {
-                            rotateOnAxis(this.parts[j], new THREE.Vector3(0,0,0), new THREE.Vector3(1,0,0), Math.PI * (e.at(1) * 0.5));
-                        }
-                        break;
-                    case 'L':
-                        if(this.parts[j].position.x == -((this.width - 1) / 2)) {
-                            rotateOnAxis(this.parts[j], new THREE.Vector3(0,0,0), new THREE.Vector3(-1,0,0), Math.PI * (e.at(1) * 0.5));
-                        }
-                        break;
-                    case 'U':
-                        if(this.parts[j].position.y == ((this.height - 1) / 2)) {
-                            rotateOnAxis(this.parts[j], new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0), Math.PI * (e.at(1) * 0.5));
-                        }
-                        break;
-                    case 'D':
-                        if(this.parts[j].position.y == -((this.height - 1) / 2)) {
-                            rotateOnAxis(this.parts[j], new THREE.Vector3(0,0,0), new THREE.Vector3(0,-1,0), Math.PI * (e.at(1) * 0.5));
-                        }
-                        break;
-                    case 'F':
-                        if(this.parts[j].position.z == ((this.depth - 1) / 2)) {
-                            rotateOnAxis(this.parts[j], new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,1), Math.PI * (e.at(1) * 0.5));
-                        }
-                        break;
-                    case 'B':
-                        if(this.parts[j].position.z == -((this.depth - 1) / 2)) {
-                            rotateOnAxis(this.parts[j], new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-1), Math.PI * (e.at(1) * 0.5));
-                        }
-                        break;
+            //(ignore instruction if it's not valid)
+            if(map.has(e.at(0))) {
+                //... and for each cube
+                for(let j = 0; j < this.parts.length; j++) {
+                    //if whaterver horror condition I created is true, rotate the block there
+                    if(componentMultiplication(this.parts[j].position, map.get(e.at(0)).clone().multiplyScalar(-1)).lengthSq() == ((this.depth - 1) / 2) * ((this.depth - 1) / 2)) {
+                        rotateOnAxis(this.parts[j], new THREE.Vector3(0,0,0), map.get(e.at(0)).clone().multiplyScalar(-1), Math.PI * (e.at(1) * 0.5));
+                    }
                 }
+                //snap all pieces so they are turned correctly and rounding errors don't add up
+                this.snapInPlace();
             }
-            this.snapInPlace();
         });
     }
 

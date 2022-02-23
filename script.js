@@ -1,7 +1,7 @@
 import './style.css'
 
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls';
 import cube from './cube';
 
 console.log("start");
@@ -15,14 +15,15 @@ const renderer = new THREE.WebGLRenderer({
   canvas: document.querySelector('#cube'),
 })
 //get Orbit controls
-const controls = new OrbitControls(camera, renderer.domElement);
+const controls = new TrackballControls(camera, renderer.domElement);
+controls.staticMoving = true;
 let curPuzzle = null;
 
 function setup() {
 
   //create first cube
   curPuzzle = new cube({scene:scene, height:3, coloring:{top: new THREE.Color(0xFFFFFF), bottom: new THREE.Color(0xFFD700), left: new THREE.Color(0xFF8C00), right: new THREE.Color(0xFF0000), front: new THREE.Color(0x00AA00), back: new THREE.Color(0x0000AA), none: new THREE.Color(0x00)}});
-  curPuzzle.scramble(cube.generateScramble(15, 20));
+  curPuzzle.scramble(cube.generateScramble(15, 20), new THREE.Vector3(0,0,1), camera.rotation.clone());
   scene.add(new THREE.GridHelper(10,10));
 
   //set renderer size to be quadratic
@@ -49,7 +50,7 @@ function update() {
 
 
 window.addEventListener("keypress", (event) => {
-    curPuzzle.scramble(event.key.toUpperCase() + (event.shiftKey ? "1" : "3"));
+    curPuzzle.scramble(event.key.toUpperCase() + (event.shiftKey ? "1" : "3"), camera.position, camera.rotation.clone());
 });
 
 setup();

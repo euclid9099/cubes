@@ -1,13 +1,12 @@
 import * as THREE from 'three';
 
-export default function rotateOnAxis(Element, rotationPoint, rotationAxis, angle) {
+export function rotateOnAxis(Element, rotationPoint, rotationAxis, angle) {
     //this was basically stolen from this stackoverflow post: https://stackoverflow.com/questions/43623549/how-to-rotate-a-vector-around-a-particular-axis
     let SinVal = Math.sin(angle);
     let CosVal = Math.cos(angle);
     let OneMinCos = 1.0 - CosVal;
 
     rotationAxis.normalize();
-    //rotationAxis = GetUnitVector(rotationAxis, { 0,0,0 });// This Function Gets unit Vector From InputVector - DesiredCenter
 
     let tempVector = new THREE.Vector3();
 
@@ -26,4 +25,20 @@ export default function rotateOnAxis(Element, rotationPoint, rotationAxis, angle
 
     Element.rotateOnWorldAxis(rotationAxis, angle);
     Element.position.set(...tempVector.toArray());
+}
+
+export function closestAxis(point, axes) {
+    let min = 181;
+    let curbest = null;
+    axes.forEach(axis => {
+        if(point.angleTo(axis) < min) {
+            min = point.angleTo(axis);
+            curbest = axis;
+        }
+    });
+    return curbest.normalize();
+}
+
+export function componentMultiplication(vector1, vector2) {
+    return new THREE.Vector3(Math.max(vector1.x * vector2.x, 0), Math.max(vector1.y * vector2.y, 0), Math.max(vector1.z * vector2.z, 0));
 }
