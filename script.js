@@ -49,7 +49,7 @@ function update() {
 
 
 window.addEventListener("keypress", (event) => {
-    curPuzzle.scramble(event.key.toUpperCase() + (event.shiftKey ? "3" : "1"));
+    curPuzzle.scramble(event.key.toUpperCase() + (event.shiftKey ? "1" : "3"));
 });
 
 setup();

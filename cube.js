@@ -146,7 +146,24 @@ export default class cube {
                         break;
                 }
             }
+            this.snapInPlace();
         });
-        console.log(this.scene.children.length);
+    }
+
+    snapInPlace() {
+        for(let i = 0; i < this.parts.length; i++) {
+            if(this.parts[i].rotation.x / (Math.PI / 2) % 1 != 0) {
+                rotateOnAxis(this.parts[i], new THREE.Vector3(0,0,0), new THREE.Vector3(1,0,0), Math.round(this.parts[i].rotation.x / (Math.PI / 2)) * (Math.PI / 2) - this.parts[i].rotation.x);
+            }
+            if(this.parts[i].rotation.y / (Math.PI / 2) % 1 != 0) {
+                rotateOnAxis(this.parts[i], new THREE.Vector3(0,0,0), new THREE.Vector3(0,1,0), Math.round(this.parts[i].rotation.x / (Math.PI / 2)) * (Math.PI / 2) - this.parts[i].rotation.x);
+            }
+            if(this.parts[i].rotation.z / (Math.PI / 2) % 1 != 0) {
+                rotateOnAxis(this.parts[i], new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,1), Math.round(this.parts[i].rotation.x / (Math.PI / 2)) * (Math.PI / 2) - this.parts[i].rotation.x);
+            }
+            this.parts[i].position.multiplyScalar(2);
+            this.parts[i].position.round();
+            this.parts[i].position.divideScalar(2);
+        }
     }
 }
